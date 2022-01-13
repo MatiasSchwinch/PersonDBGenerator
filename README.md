@@ -1,4 +1,4 @@
-# PersonDatabaseGenerator
+# PersonDBGenerator
 
 Genera una base de datos en SQLite con registros de personas ficticias utilizando la API de https://randomuser.me/.
 
