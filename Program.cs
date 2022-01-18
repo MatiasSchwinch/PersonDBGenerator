@@ -14,13 +14,14 @@ namespace GeneradorBaseDatos
         static async Task Main(string[] args)
         {
             Console.Title = "Generador de bases de datos: SQLite";
+            Console.OutputEncoding = System.Text.Encoding.Unicode;
 
             int QuantityToAdd;
             string ReadQuantity;
             bool ExitLoop = false;
             int i = 0;
 
-            Console.WriteLine(FiggleFonts.Small.Render("Generador de bases de datos"));//Italic
+            Console.WriteLine(FiggleFonts.Small.Render("Generador de bases de datos"));
             Console.WriteLine("Autor: Matias Schwinch");
             Console.WriteLine("Repositorio: https://github.com/MatiasSchwinch");
             Console.WriteLine("API utilizada: https://randomuser.me/\n");
@@ -31,17 +32,21 @@ namespace GeneradorBaseDatos
             {
                 ReadQuantity = Console.ReadLine();
 
-                if (!int.TryParse(ReadQuantity, out QuantityToAdd)) { Console.WriteLine($"\"{ReadQuantity}\" no es un número, ingrese un numero valido:"); continue; }
-                if (QuantityToAdd > 5000) { Console.WriteLine("El máximo que se pueden añadir son 5000 registros"); continue; }
+                if (!int.TryParse(ReadQuantity, out QuantityToAdd)) { Console.WriteLine($"\"{ReadQuantity}\" no es un número, ingrese un numero valido."); continue; }
+                if (QuantityToAdd < 1 || QuantityToAdd > 5000) { Console.WriteLine("El mínimo de registros que se pueden generar es 1, y el máximo es 5000."); continue; }
 
                 ExitLoop = true;
 
             } while (!ExitLoop);
 
+            Console.WriteLine("Conectando con la API...");
+
             //  Conexión con la API.
             Connection<API> connection = new("https://randomuser.me/api/");
             API dataReceived = await connection.GetDeserializeData(QuantityToAdd);
             if (dataReceived is null) { Environment.Exit(1); }
+
+            Console.WriteLine("Registros recibidos...");
 
             using DBConnector dB = new();
 
