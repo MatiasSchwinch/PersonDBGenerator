@@ -1,6 +1,6 @@
 {
     "ConnectionStrings": {
-        "SqlServerConnection": "Server=MT2;Database=PersonDBGenerator;Trusted_Connection=True;MultipleActiveResultSets=true",
+        "SqlServerConnection": "",
         "SqliteConnection": "Filename=PersonDBGenerator.db"
     }
 }
