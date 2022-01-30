@@ -17,7 +17,7 @@ namespace GeneradorBaseDatos
 
             int QuantityToAdd = 0;
             int i = 0;
-
+            
             Console.WriteLine(FiggleFonts.Stop.Render("PersonDBGenerator"));
             Console.WriteLine("Autor: Matias Schwinch");
             Console.WriteLine("Repositorio: https://github.com/MatiasSchwinch");
@@ -30,8 +30,8 @@ namespace GeneradorBaseDatos
             Console.WriteLine("Conectando con la API...");
 
             //  Conexión con la API.
-            Connection<API> connection = new("https://randomuser.me/api/", "?results={0}");
-            API dataReceived = await connection.GetDeserializeData(QuantityToAdd);
+            Connection<RandomUserAPIModel> connection = new("https://randomuser.me/api/", "?results={0}");
+            RandomUserAPIModel dataReceived = await connection.GetDeserializeData(QuantityToAdd);
             if (dataReceived is null) { Console.WriteLine("No se han recibido datos de la API."); Environment.Exit(1); }
 
             Console.WriteLine("Registros recibidos...");
@@ -39,7 +39,7 @@ namespace GeneradorBaseDatos
             //  Elegir que gestor de bases de datos utilizar.
             Console.WriteLine("\nEn que gestor de bases de datos desea guardar la información recibida?:\n" +
                 "1: SQL Server (debe tener configurada previamente la cadena de conexión en el archivo \"config.json\")\n" +
-                "2: SQLite");
+                "2: SQLite (Genera una base de datos local junto a este ejecutable)");
             RequestUserNumber(1, 2, ref QuantityToAdd, "Solo puede elegir entre 2 opciones.");
 
             try
@@ -48,15 +48,8 @@ namespace GeneradorBaseDatos
 
                 foreach (var item in dataReceived.Results)
                 {
-                    Person person = new();
-                    person = item;
-                    person.FirstName = item.Name.FirstName;
-                    person.LastName = item.Name.LastName;
-                    person.Date = item.Dob.Date;
-                    person.Age = item.Dob.Age;
-
-                    dB.Person.Add(person);
-                    Console.WriteLine($"Registro listado no. {++i}: {person}");
+                    dB.Persons.Add(item);
+                    Console.WriteLine($"Registro listado no. {++i}: {item}");
                 }
 
                 Console.WriteLine("Guardando registros...");
@@ -68,13 +61,14 @@ namespace GeneradorBaseDatos
             }
             catch (Exception e)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"No se pudieron añadir los registros debido a un error: {e.Message}");
+                Console.ResetColor();
             }
 
             //  Salida del programa.
             Console.WriteLine("\nPresione una tecla para salir...");
             Console.ReadKey();
-            
         }
 
         /// <summary>
