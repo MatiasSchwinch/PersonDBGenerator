@@ -7,11 +7,14 @@ using System.Text.Json.Serialization;
 namespace GeneradorBaseDatos.Model
 {
     // Modelo de respuesta de la API (https://randomuser.me).
+
+    #region DataAnnotations
     public class Coordinates
     {
         [Key, Column(Order = 0)]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CoordinatesID { get; set; }
+        public int LocationID { get; set; }
 
         [JsonPropertyName("latitude")]
         public string tempLatitude
@@ -32,6 +35,9 @@ namespace GeneradorBaseDatos.Model
             }
         }
         public decimal Longitude { get; set; }
+
+        [ForeignKey("LocationID")]
+        public Location Location { get; set; }
     }
 
     public class Timezone
@@ -39,6 +45,7 @@ namespace GeneradorBaseDatos.Model
         [Key, Column(Order = 0)]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TimezoneID { get; set; }
+        public int LocationID { get; set; }
 
         [MaxLength(10)]
         [JsonPropertyName("offset")]
@@ -47,6 +54,9 @@ namespace GeneradorBaseDatos.Model
         [MaxLength(100)]
         [JsonPropertyName("description")]
         public string Description { get; set; }
+
+        [ForeignKey("LocationID")]
+        public Location Location { get; set; }
     }
 
     public class Street
@@ -54,6 +64,7 @@ namespace GeneradorBaseDatos.Model
         [Key, Column(Order = 0)]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int StreetID { get; set; }
+        public int LocationID { get; set; }
 
         [JsonPropertyName("number")]
         public int Number { get; set; }
@@ -61,6 +72,9 @@ namespace GeneradorBaseDatos.Model
         [MaxLength(100)]
         [JsonPropertyName("name")]
         public string Name { get; set; }
+
+        [ForeignKey("LocationID")]
+        public Location Location { get; set; }
     }
 
     public class Location
@@ -68,10 +82,7 @@ namespace GeneradorBaseDatos.Model
         [Key, Column(Order = 0)]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int LocationID { get; set; }
-
-        [ForeignKey("StreetID")]
-        [JsonPropertyName("street")]
-        public virtual Street Street { get; set; }
+        public int PersonID { get; set; }
 
         [MaxLength(100)]
         [JsonPropertyName("city")]
@@ -85,7 +96,6 @@ namespace GeneradorBaseDatos.Model
         [JsonPropertyName("country")]
         public string Country { get; set; }
 
-        [NotMapped]
         [JsonPropertyName("postcode")]
         public object tempPostCode
         {
@@ -98,13 +108,17 @@ namespace GeneradorBaseDatos.Model
         [MaxLength(20)]
         public string Postcode { get; set; }
 
-        [ForeignKey("CoordinatesID")]
+        [JsonPropertyName("street")]
+        public virtual Street Street { get; set; }
+
         [JsonPropertyName("coordinates")]
         public virtual Coordinates Coordinates { get; set; }
 
-        [ForeignKey("TimezoneID")]
         [JsonPropertyName("timezone")]
         public virtual Timezone Timezone { get; set; }
+
+        [ForeignKey("PersonID")]
+        public Person Person { get; set; }
     }
 
     public class Login
@@ -112,6 +126,7 @@ namespace GeneradorBaseDatos.Model
         [Key, Column(Order = 0)]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int LoginID { get; set; }
+        public int PersonID { get; set; }
 
         [MaxLength(100)]
         [JsonPropertyName("uuid")]
@@ -140,14 +155,13 @@ namespace GeneradorBaseDatos.Model
         [MaxLength(100)]
         [JsonPropertyName("sha256")]
         public string Sha256 { get; set; }
+
+        [ForeignKey("PersonID")]
+        public Person Person { get; set; }
     }
 
     public class Dob
     {
-        [Key, Column(Order = 0)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int DobID { get; set; }
-
         [Required]
         [JsonPropertyName("date")]
         public DateTime Date { get; set; }
@@ -161,12 +175,16 @@ namespace GeneradorBaseDatos.Model
         [Key, Column(Order = 0)]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RegisteredID { get; set; }
+        public int PersonID { get; set; }
 
         [JsonPropertyName("date")]
         public DateTime Date { get; set; }
 
         [JsonPropertyName("age")]
         public int Age { get; set; }
+
+        [ForeignKey("PersonID")]
+        public Person Person { get; set; }
     }
 
     public class Picture
@@ -174,6 +192,8 @@ namespace GeneradorBaseDatos.Model
         [Key, Column(Order = 0)]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PictureID { get; set; }
+
+        public int PersonID { get; set; }
 
         [MaxLength(100)]
         [JsonPropertyName("large")]
@@ -186,25 +206,19 @@ namespace GeneradorBaseDatos.Model
         [MaxLength(100)]
         [JsonPropertyName("thumbnail")]
         public string Thumbnail { get; set; }
+
+        [ForeignKey("PersonID")]
+        public Person Person { get; set; }
     }
 
     public class Name
     {
-        [Key, Column(Order = 0)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int NameID { get; set; }
-
-        [MaxLength(15)]
         [JsonPropertyName("title")]
         public string Title { get; set; }
 
-        [Required]
-        [MaxLength(30)]
         [JsonPropertyName("first")]
         public string First { get; set; }
 
-        [Required]
-        [MaxLength(30)]
         [JsonPropertyName("last")]
         public string Last { get; set; }
     }
@@ -215,52 +229,64 @@ namespace GeneradorBaseDatos.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PersonID { get; set; }
 
-        [NotMapped]
+        #region Nombre
+        [JsonPropertyName("name")]
+        public Name Name
+        {
+            set
+            {
+                Title = value.Title;
+                FirstName = value.First;
+                LastName = value.Last;
+            }
+        }
+        [MaxLength(20)]
+        public string Title { get; set; }
+        [Required]
+        [MaxLength(30)]
+        public string FirstName { get; set; }
+        [Required]
+        [MaxLength(30)]
+        public string LastName { get; set; }
+        #endregion
+
+        #region Género
         [JsonPropertyName("gender")]
         public string tempGender
         {
             set
             {
-                switch (value)
+                Gender = value switch
                 {
-                    case "male":
-                        Gender = Genders.Male;
-                        break;
-                    case "female":
-                        Gender = Genders.Female;
-                        break;
-                    default:
-                        Gender = Genders.NotSelected;
-                        break;
-                }
+                    "male" => Genders.Male,
+                    "female" => Genders.Female,
+                    _ => Genders.NotSelected,
+                };
             }
         }
-
         public Genders Gender { get; set; }
+        #endregion
 
-        [ForeignKey("NameID")]
-        [JsonPropertyName("name")]
-        public virtual Name Name { get; set; }
+        #region Edad
+        [JsonPropertyName("dob")]
+        public Dob Dob
+        {
+            set
+            {
+                Date = value.Date;
+                Age = value.Age;
+            }
+        }
+        [Required]
+        public DateTime Date { get; set; }
+        public int Age { get; set; }
+        #endregion
 
-        [ForeignKey("LocationID")]
-        [JsonPropertyName("location")]
-        public virtual Location Location { get; set; }
-
+        #region Datos de contacto
+        [Required]
         [MaxLength(100)]
         [JsonPropertyName("email")]
         public string Email { get; set; }
-
-        [ForeignKey("LoginID")]
-        [JsonPropertyName("login")]
-        public virtual Login Login { get; set; }
-
-        [ForeignKey("DobID")]
-        [JsonPropertyName("dob")]
-        public virtual Dob Dob { get; set; }
-
-        [ForeignKey("RegisteredID")]
-        [JsonPropertyName("registered")]
-        public virtual Registered Registered { get; set; }
 
         [MaxLength(30)]
         [JsonPropertyName("phone")]
@@ -269,22 +295,32 @@ namespace GeneradorBaseDatos.Model
         [MaxLength(30)]
         [JsonPropertyName("cell")]
         public string Cell { get; set; }
+        #endregion
 
-        [ForeignKey("PictureID")]
-        [JsonPropertyName("picture")]
-        public virtual Picture Picture { get; set; }
-
+        #region Otros datos
         [MaxLength(4)]
         [JsonPropertyName("nat")]
         public string Nationality { get; set; }
 
+        [JsonPropertyName("location")]
+        public virtual Location? Location { get; set; }
+
+        [JsonPropertyName("login")]
+        public virtual Login? Login { get; set; }
+
+        [JsonPropertyName("registered")]
+        public virtual Registered? Registered { get; set; }
+
+        [JsonPropertyName("picture")]
+        public virtual Picture? Picture { get; set; }
+        #endregion
+
         public override string ToString()
         {
-            return string.Format("{0}. {1} {2} (Edad: {3})", Name.Title, Name.First, Name.Last, Dob.Age);
+            return string.Format("{0}. {1} {2} (Edad: {3})", Title, FirstName, LastName, Age);
         }
     }
 
-    [NotMapped]
     public class RandomUserAPIModel
     {
         [JsonPropertyName("results")]
@@ -297,4 +333,5 @@ namespace GeneradorBaseDatos.Model
         Female,
         NotSelected
     }
+    #endregion
 }
