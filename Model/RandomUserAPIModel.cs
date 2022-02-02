@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace GeneradorBaseDatos.Model
@@ -11,10 +9,7 @@ namespace GeneradorBaseDatos.Model
     #region DataAnnotations
     public class Coordinates
     {
-        [Key, Column(Order = 0)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CoordinatesID { get; set; }
-        public int LocationID { get; set; }
 
         [JsonPropertyName("latitude")]
         public string tempLatitude
@@ -36,63 +31,47 @@ namespace GeneradorBaseDatos.Model
         }
         public decimal Longitude { get; set; }
 
-        [ForeignKey("LocationID")]
         public Location Location { get; set; }
     }
 
     public class Timezone
     {
-        [Key, Column(Order = 0)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TimezoneID { get; set; }
-        public int LocationID { get; set; }
 
-        [MaxLength(10)]
         [JsonPropertyName("offset")]
         public string Offset { get; set; }
 
-        [MaxLength(100)]
         [JsonPropertyName("description")]
         public string Description { get; set; }
 
-        [ForeignKey("LocationID")]
         public Location Location { get; set; }
     }
 
     public class Street
     {
-        [Key, Column(Order = 0)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int StreetID { get; set; }
-        public int LocationID { get; set; }
-
         [JsonPropertyName("number")]
         public int Number { get; set; }
 
-        [MaxLength(100)]
         [JsonPropertyName("name")]
         public string Name { get; set; }
-
-        [ForeignKey("LocationID")]
-        public Location Location { get; set; }
     }
 
     public class Location
     {
-        [Key, Column(Order = 0)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int LocationID { get; set; }
-        public int PersonID { get; set; }
+        public int? CoordinatesID { get; set; }
+        public int? TimezoneID { get; set; }
 
-        [MaxLength(100)]
+        public int StreetNumber { get; set; }
+
+        public string StreetName { get; set; }
+
         [JsonPropertyName("city")]
         public string City { get; set; }
 
-        [MaxLength(100)]
         [JsonPropertyName("state")]
         public string State { get; set; }
 
-        [MaxLength(100)]
         [JsonPropertyName("country")]
         public string Country { get; set; }
 
@@ -104,12 +83,17 @@ namespace GeneradorBaseDatos.Model
                 Postcode = value.ToString();
             }
         }
-
-        [MaxLength(20)]
         public string Postcode { get; set; }
 
         [JsonPropertyName("street")]
-        public virtual Street Street { get; set; }
+        public virtual Street Street
+        {
+            set
+            {
+                StreetNumber = value.Number;
+                StreetName = value.Name;
+            }
+        }
 
         [JsonPropertyName("coordinates")]
         public virtual Coordinates Coordinates { get; set; }
@@ -117,52 +101,39 @@ namespace GeneradorBaseDatos.Model
         [JsonPropertyName("timezone")]
         public virtual Timezone Timezone { get; set; }
 
-        [ForeignKey("PersonID")]
         public Person Person { get; set; }
     }
 
     public class Login
     {
-        [Key, Column(Order = 0)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int LoginID { get; set; }
-        public int PersonID { get; set; }
 
-        [MaxLength(100)]
         [JsonPropertyName("uuid")]
         public string Uuid { get; set; }
 
-        [MaxLength(50)]
         [JsonPropertyName("username")]
         public string Username { get; set; }
 
-        [MaxLength(30)]
         [JsonPropertyName("password")]
         public string Password { get; set; }
 
-        [MaxLength(100)]
         [JsonPropertyName("salt")]
         public string Salt { get; set; }
 
-        [MaxLength(100)]
         [JsonPropertyName("md5")]
         public string Md5 { get; set; }
 
-        [MaxLength(100)]
         [JsonPropertyName("sha1")]
         public string Sha1 { get; set; }
 
-        [MaxLength(100)]
         [JsonPropertyName("sha256")]
         public string Sha256 { get; set; }
 
-        [ForeignKey("PersonID")]
         public Person Person { get; set; }
     }
 
     public class Dob
     {
-        [Required]
         [JsonPropertyName("date")]
         public DateTime Date { get; set; }
 
@@ -172,42 +143,30 @@ namespace GeneradorBaseDatos.Model
 
     public class Registered
     {
-        [Key, Column(Order = 0)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RegisteredID { get; set; }
-        public int PersonID { get; set; }
 
         [JsonPropertyName("date")]
-        public DateTime Date { get; set; }
+        public DateTime Date { get; set; } = DateTime.Now;
 
         [JsonPropertyName("age")]
         public int Age { get; set; }
 
-        [ForeignKey("PersonID")]
         public Person Person { get; set; }
     }
 
     public class Picture
     {
-        [Key, Column(Order = 0)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PictureID { get; set; }
 
-        public int PersonID { get; set; }
-
-        [MaxLength(100)]
         [JsonPropertyName("large")]
         public string Large { get; set; }
 
-        [MaxLength(100)]
         [JsonPropertyName("medium")]
         public string Medium { get; set; }
 
-        [MaxLength(100)]
         [JsonPropertyName("thumbnail")]
         public string Thumbnail { get; set; }
 
-        [ForeignKey("PersonID")]
         public Person Person { get; set; }
     }
 
@@ -225,9 +184,11 @@ namespace GeneradorBaseDatos.Model
 
     public class Person
     {
-        [Key, Column(Order = 0)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PersonID { get; set; }
+        public int? LocationID { get; set; }
+        public int? LoginID { get; set; }
+        public int? RegisteredID { get; set; }
+        public int? PictureID { get; set; }
 
         #region Nombre
         [JsonPropertyName("name")]
@@ -240,13 +201,8 @@ namespace GeneradorBaseDatos.Model
                 LastName = value.Last;
             }
         }
-        [MaxLength(20)]
         public string Title { get; set; }
-        [Required]
-        [MaxLength(30)]
         public string FirstName { get; set; }
-        [Required]
-        [MaxLength(30)]
         public string LastName { get; set; }
         #endregion
 
@@ -277,42 +233,36 @@ namespace GeneradorBaseDatos.Model
                 Age = value.Age;
             }
         }
-        [Required]
         public DateTime Date { get; set; }
         public int Age { get; set; }
         #endregion
 
         #region Datos de contacto
-        [Required]
-        [MaxLength(100)]
         [JsonPropertyName("email")]
         public string Email { get; set; }
 
-        [MaxLength(30)]
         [JsonPropertyName("phone")]
         public string Phone { get; set; }
 
-        [MaxLength(30)]
         [JsonPropertyName("cell")]
         public string Cell { get; set; }
         #endregion
 
         #region Otros datos
-        [MaxLength(4)]
         [JsonPropertyName("nat")]
         public string Nationality { get; set; }
 
         [JsonPropertyName("location")]
-        public virtual Location? Location { get; set; }
+        public virtual Location Location { get; set; }
 
         [JsonPropertyName("login")]
-        public virtual Login? Login { get; set; }
+        public virtual Login Login { get; set; }
 
         [JsonPropertyName("registered")]
-        public virtual Registered? Registered { get; set; }
+        public virtual Registered Registered { get; set; }
 
         [JsonPropertyName("picture")]
-        public virtual Picture? Picture { get; set; }
+        public virtual Picture Picture { get; set; }
         #endregion
 
         public override string ToString()
