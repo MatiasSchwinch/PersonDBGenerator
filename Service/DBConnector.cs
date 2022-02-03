@@ -14,7 +14,7 @@ namespace GeneradorBaseDatos.Service
         public DBConnector(DatabaseEngine dbEngine)
         {
             _dbEngine = dbEngine;
-
+            Database.EnsureDeleted();
             // Este enfoque fue el seleccionado ya que al ser una Db enfocada íntegramente para realizar pruebas, no veo que valga la pena implementar un soporte para migraciones.
             Database.EnsureCreated();
         }
@@ -48,7 +48,7 @@ namespace GeneradorBaseDatos.Service
 
                 entity.Property(p => p.LastName).HasColumnType("nvarchar(30)").IsRequired();
 
-                entity.Property(p => p.Gender);
+                entity.Property(p => p.Gender).HasColumnType("tinyint");
 
                 entity.Property(p => p.Date).HasColumnType("date").IsRequired();
 
@@ -139,9 +139,9 @@ namespace GeneradorBaseDatos.Service
 
                 entity.HasKey(k => k.TimezoneID);
 
-                entity.Property(p => p.Offset);
+                entity.Property(p => p.Offset).HasColumnType("nvarchar(6)");
 
-                entity.Property(p => p.Description);
+                entity.Property(p => p.Description).HasColumnType("nvarchar(120)");
             });
             #endregion
 
@@ -151,19 +151,19 @@ namespace GeneradorBaseDatos.Service
 
                 entity.HasKey(k => k.LoginID);
 
-                entity.Property(p => p.Uuid);
+                entity.Property(p => p.Uuid).HasColumnType("nvarchar(36)");
                 
-                entity.Property(p => p.Username);
+                entity.Property(p => p.Username).HasColumnType("nvarchar(25)");
 
-                entity.Property(p => p.Password);
+                entity.Property(p => p.Password).HasColumnType("nvarchar(25)");
 
-                entity.Property(p => p.Salt);
+                entity.Property(p => p.Salt).HasColumnType("nvarchar(10)");
 
-                entity.Property(p => p.Md5);
+                entity.Property(p => p.Md5).HasColumnType("nvarchar(32)");
 
-                entity.Property(p => p.Sha1);
+                entity.Property(p => p.Sha1).HasColumnType("nvarchar(40)");
 
-                entity.Property(p => p.Sha256);
+                entity.Property(p => p.Sha256).HasColumnType("nvarchar(64)");
             });
 
             modelBuilder.Entity<Registered>(entity =>
@@ -183,11 +183,11 @@ namespace GeneradorBaseDatos.Service
 
                 entity.HasKey(k => k.PictureID);
 
-                entity.Property(p => p.Large);
+                entity.Property(p => p.Large).HasColumnType("nvarchar(60)");
 
-                entity.Property(p => p.Medium);
+                entity.Property(p => p.Medium).HasColumnType("nvarchar(60)");
 
-                entity.Property(p => p.Thumbnail);
+                entity.Property(p => p.Thumbnail).HasColumnType("nvarchar(60)");
             });
         }
 
