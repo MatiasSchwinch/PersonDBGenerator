@@ -1,6 +1,7 @@
 {
-    "ConnectionStrings": {
-        "SqlServerConnection": "",
-        "SqliteConnection": "Filename=PersonDBGenerator.db"
-    }
+  "ConnectionStrings": {
+    "SqlServerConnection": "",
+    "PostgreSqlConnection": "",
+    "SqliteConnection": "Data Source=PersonDBGenerator.db;"
+  }
 }

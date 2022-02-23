@@ -17,11 +17,14 @@ namespace GeneradorBaseDatos
 
             int QuantityToAdd = 0;
             int i = 0;
-            
+
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(FiggleFonts.Stop.Render("PersonDBGenerator"));
+            Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine("Autor: Matias Schwinch");
             Console.WriteLine("Repositorio: https://github.com/MatiasSchwinch");
             Console.WriteLine("API utilizada: https://randomuser.me/\n");
+            Console.ResetColor();
 
             //  Ingresar la cantidad de registros a generar.
             Console.WriteLine("Ingrese la cantidad de registros (máximo soportado por la API: 5000) que desea añadir a la base de datos:");
@@ -32,19 +35,20 @@ namespace GeneradorBaseDatos
             //  Conexión con la API.
             Connection<RandomUserAPIModel> connection = new("https://randomuser.me/api/", "?results={0}");
             RandomUserAPIModel dataReceived = await connection.GetDeserializeData(QuantityToAdd);
-            if (dataReceived is null) { Console.WriteLine("No se han recibido datos de la API."); Environment.Exit(1); }
+            if (dataReceived is null) { WriteLineColor(ConsoleColor.Red, "No se han recibido datos de la API."); Environment.Exit(1); }
 
             Console.WriteLine("Registros recibidos...");
 
             //  Elegir que gestor de bases de datos utilizar.
             Console.WriteLine("\nEn que gestor de bases de datos desea guardar la información recibida?:\n" +
                 "1: SQL Server (debe tener configurada previamente la cadena de conexión en el archivo \"config.json\")\n" +
-                "2: SQLite (Genera una base de datos local junto a este ejecutable)");
-            RequestUserNumber(1, 2, ref QuantityToAdd, "Solo puede elegir entre 2 opciones.");
+                "2: PostgreSQL (debe tener configurada previamente la cadena de conexión en el archivo \"config.json\")\n" +
+                "3: SQLite (Genera una base de datos local junto a este ejecutable)");
+            RequestUserNumber(1, 3, ref QuantityToAdd, "Solo puede elegir entre estas 3 opciones.");
 
             try
             {
-                using DBConnector dB = new((DBConnector.DatabaseEngine)QuantityToAdd);
+                using DBConnector dB = new((DatabaseEngine)QuantityToAdd);
 
                 foreach (var item in dataReceived.Results)
                 {
@@ -57,17 +61,15 @@ namespace GeneradorBaseDatos
                 //  Guardado de los registros en la Base de datos.
                 dB.SaveChanges();
 
-                Console.WriteLine("Los registros se añadieron a la base de datos en {0} correctamente.", (DBConnector.DatabaseEngine)QuantityToAdd);
+                WriteLineColor(ConsoleColor.Green, string.Format("► Los registros se añadieron a la base de datos en {0} correctamente.", (DatabaseEngine)QuantityToAdd));
             }
             catch (Exception e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"No se pudieron añadir los registros debido a un error: {e.Message}");
-                Console.ResetColor();
+                WriteLineColor(ConsoleColor.Red, $"No se pudieron añadir los registros debido a un error: {e.Message}");
             }
 
             //  Salida del programa.
-            Console.WriteLine("\nPresione una tecla para salir...");
+            Console.Write("\nPresione una tecla para salir...");
             Console.ReadKey();
         }
 
@@ -85,12 +87,19 @@ namespace GeneradorBaseDatos
             {
                 var ReadQuantity = Console.ReadLine();
 
-                if (!int.TryParse(ReadQuantity, out pStoreNum)) { Console.WriteLine("\"{0}\" no es un número, ingrese un numero valido.", ReadQuantity); continue; }
-                if (pStoreNum < pMin || pStoreNum > pMax) { Console.WriteLine(pValidationExceedMaxMSG, pMin, pMax); continue; }
+                if (!int.TryParse(ReadQuantity, out pStoreNum)) { WriteLineColor(ConsoleColor.Red, string.Format("\"{0}\" no es un número, ingrese un numero valido.", ReadQuantity)); continue; }
+                if (pStoreNum < pMin || pStoreNum > pMax) { WriteLineColor(ConsoleColor.Red, string.Format(pValidationExceedMaxMSG, pMin, pMax)); continue; }
 
                 endLoop = true;
 
             } while (!endLoop);
+        }
+
+        static void WriteLineColor(ConsoleColor consoleColor, string message)
+        {
+            Console.ForegroundColor = consoleColor;
+            Console.WriteLine(message);
+            Console.ResetColor();
         }
     }
 

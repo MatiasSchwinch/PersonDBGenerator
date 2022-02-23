@@ -1,6 +1,7 @@
 ﻿using GeneradorBaseDatos.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 
 namespace GeneradorBaseDatos.Service
 {
@@ -9,28 +10,24 @@ namespace GeneradorBaseDatos.Service
         public DbSet<Person> Persons {get; set;}
 
         private readonly DatabaseEngine _dbEngine;
-        private readonly IConfiguration _config = new ConfigurationBuilder().AddJsonFile("config.json").Build();
+        private readonly Dictionary<int, DatabaseEngineOptions> _dbEngineOptions = new()
+        {
+            { 1, new SqlServerProviderOptions() },
+            { 2, new PostgreSQLProviderOptions() },
+            { 3, new SQLiteProviderOptions() }
+        };
 
         public DBConnector(DatabaseEngine dbEngine)
         {
             _dbEngine = dbEngine;
-            Database.EnsureDeleted();
+
             // Este enfoque fue el seleccionado ya que al ser una Db enfocada íntegramente para realizar pruebas, no veo que valga la pena implementar un soporte para migraciones.
             Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            switch (_dbEngine)
-            {
-                case DatabaseEngine.SQLServer:
-                    optionsBuilder.UseSqlServer(connectionString: _config.GetConnectionString("SqlServerConnection"));
-                    break;
-
-                case DatabaseEngine.SQLite:
-                    optionsBuilder.UseSqlite(connectionString: _config.GetConnectionString("SqliteConnection"));
-                    break;
-            }
+            _dbEngineOptions[(int)_dbEngine].SetDatabaseEngine(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,25 +39,25 @@ namespace GeneradorBaseDatos.Service
 
                 entity.HasKey(k => k.PersonID);
 
-                entity.Property(p => p.Title).HasColumnType("nvarchar(20)");
+                entity.Property(p => p.Title).HasMaxLength(20);
 
-                entity.Property(p => p.FirstName).HasColumnType("nvarchar(30)").IsRequired();
+                entity.Property(p => p.FirstName).HasMaxLength(30).IsRequired();
 
-                entity.Property(p => p.LastName).HasColumnType("nvarchar(30)").IsRequired();
+                entity.Property(p => p.LastName).HasMaxLength(30).IsRequired();
 
-                entity.Property(p => p.Gender).HasColumnType("tinyint");
+                entity.Property(p => p.Gender).HasColumnType("smallint");
 
                 entity.Property(p => p.Date).HasColumnType("date").IsRequired();
 
                 entity.Property(p => p.Age);
 
-                entity.Property(p => p.Email).HasColumnType("nvarchar(320)").IsRequired();
+                entity.Property(p => p.Email).HasMaxLength(320).IsRequired();
 
-                entity.Property(p => p.Phone).HasColumnType("nvarchar(30)");
+                entity.Property(p => p.Phone).HasMaxLength(30);
 
-                entity.Property(p => p.Cell).HasColumnType("nvarchar(30)");
+                entity.Property(p => p.Cell).HasMaxLength(30);
 
-                entity.Property(p => p.Nationality).HasColumnType("nvarchar(4)");
+                entity.Property(p => p.Nationality).HasMaxLength(4);
 
                 // 1:1 Locación.
                 entity.HasOne(r => r.Location)
@@ -95,17 +92,17 @@ namespace GeneradorBaseDatos.Service
 
                 entity.HasKey(k => k.LocationID);
 
-                entity.Property(p => p.StreetNumber).HasColumnType("int");
+                entity.Property(p => p.StreetNumber);
 
-                entity.Property(p => p.StreetName).HasColumnType("nvarchar(90)");
+                entity.Property(p => p.StreetName).HasMaxLength(90);
 
-                entity.Property(p => p.City).HasColumnType("nvarchar(60)");
+                entity.Property(p => p.City).HasMaxLength(60);
 
-                entity.Property(p =>p.State).HasColumnType("nvarchar(60)");
+                entity.Property(p =>p.State).HasMaxLength(60);
 
-                entity.Property(p => p.Country).HasColumnType("nvarchar(60)");
+                entity.Property(p => p.Country).HasMaxLength(60);
 
-                entity.Property(p => p.Postcode).HasColumnType("nvarchar(30)");
+                entity.Property(p => p.Postcode).HasMaxLength(30);
 
                 // 1:1 Datos de coordenadas.
                 entity.HasOne(r => r.Coordinates)
@@ -139,9 +136,9 @@ namespace GeneradorBaseDatos.Service
 
                 entity.HasKey(k => k.TimezoneID);
 
-                entity.Property(p => p.Offset).HasColumnType("nvarchar(6)");
+                entity.Property(p => p.Offset).HasMaxLength(6);
 
-                entity.Property(p => p.Description).HasColumnType("nvarchar(120)");
+                entity.Property(p => p.Description).HasMaxLength(120);
             });
             #endregion
 
@@ -151,19 +148,19 @@ namespace GeneradorBaseDatos.Service
 
                 entity.HasKey(k => k.LoginID);
 
-                entity.Property(p => p.Uuid).HasColumnType("nvarchar(36)");
-                
-                entity.Property(p => p.Username).HasColumnType("nvarchar(25)");
+                entity.Property(p => p.Uuid).HasMaxLength(36);
 
-                entity.Property(p => p.Password).HasColumnType("nvarchar(25)");
+                entity.Property(p => p.Username).HasMaxLength(25);
 
-                entity.Property(p => p.Salt).HasColumnType("nvarchar(10)");
+                entity.Property(p => p.Password).HasMaxLength(25);
 
-                entity.Property(p => p.Md5).HasColumnType("nvarchar(32)");
+                entity.Property(p => p.Salt).HasMaxLength(10);
 
-                entity.Property(p => p.Sha1).HasColumnType("nvarchar(40)");
+                entity.Property(p => p.Md5).HasMaxLength(32);
 
-                entity.Property(p => p.Sha256).HasColumnType("nvarchar(64)");
+                entity.Property(p => p.Sha1).HasMaxLength(40);
+
+                entity.Property(p => p.Sha256).HasMaxLength(64);
             });
 
             modelBuilder.Entity<Registered>(entity =>
@@ -183,18 +180,56 @@ namespace GeneradorBaseDatos.Service
 
                 entity.HasKey(k => k.PictureID);
 
-                entity.Property(p => p.Large).HasColumnType("nvarchar(60)");
+                entity.Property(p => p.Large).HasMaxLength(60);
 
-                entity.Property(p => p.Medium).HasColumnType("nvarchar(60)");
+                entity.Property(p => p.Medium).HasMaxLength(60);
 
-                entity.Property(p => p.Thumbnail).HasColumnType("nvarchar(60)");
+                entity.Property(p => p.Thumbnail).HasMaxLength(60);
             });
         }
+    }
 
-        public enum DatabaseEngine
+    public abstract class DatabaseEngineOptions
+    {
+        private protected readonly IConfiguration _config = new ConfigurationBuilder().AddJsonFile("config.json").Build();
+        public abstract string ConnectionStringConfigFileKey { get; set; }
+        public abstract DbContextOptionsBuilder SetDatabaseEngine(DbContextOptionsBuilder optionsBuilder);
+    }
+
+    public class SqlServerProviderOptions : DatabaseEngineOptions
+    {
+        public override string ConnectionStringConfigFileKey { get; set; } = "SqlServerConnection";
+
+        public override DbContextOptionsBuilder SetDatabaseEngine(DbContextOptionsBuilder optionsBuilder)
         {
-            SQLServer = 1,
-            SQLite = 2
+            return optionsBuilder.UseSqlServer(connectionString: _config.GetConnectionString(ConnectionStringConfigFileKey));
         }
+    }
+
+    public class SQLiteProviderOptions : DatabaseEngineOptions
+    {
+        public override string ConnectionStringConfigFileKey { get; set; } = "SqliteConnection";
+
+        public override DbContextOptionsBuilder SetDatabaseEngine(DbContextOptionsBuilder optionsBuilder)
+        {
+            return optionsBuilder.UseSqlite(connectionString: _config.GetConnectionString(ConnectionStringConfigFileKey));
+        }
+    }
+
+    public class PostgreSQLProviderOptions : DatabaseEngineOptions
+    {
+        public override string ConnectionStringConfigFileKey { get; set; } = "PostgreSqlConnection";
+
+        public override DbContextOptionsBuilder SetDatabaseEngine(DbContextOptionsBuilder optionsBuilder)
+        {
+            return optionsBuilder.UseNpgsql(connectionString: _config.GetConnectionString(ConnectionStringConfigFileKey));
+        }
+    }
+
+    public enum DatabaseEngine
+    {
+        SQLServer = 1,
+        PostgreSQL = 2,
+        SQLite = 3
     }
 }
