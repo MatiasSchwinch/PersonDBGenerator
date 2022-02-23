@@ -17,4 +17,5 @@ Estructura de la base de datos que se genera:
 - C#
 - Entity Framework Core 5
 - SQL Server
+- PostgreSQL
 - SQLite
