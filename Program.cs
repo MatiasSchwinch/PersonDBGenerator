@@ -12,7 +12,7 @@ namespace GeneradorBaseDatos
     {
         static async Task Main(string[] args)
         {
-            Console.Title = "PersonDBGenerator: SQL Server & SQLite";
+            Console.Title = "PersonDBGenerator: SQL Server, PostgreSQL & SQLite";
             Console.OutputEncoding = System.Text.Encoding.Unicode;
 
             int QuantityToAdd = 0;
