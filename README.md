@@ -10,7 +10,7 @@ Estructura de la base de datos que se genera:
 
 ![PersonDBGeneratorDiagrama](https://user-images.githubusercontent.com/93444165/153715041-43a82baa-118f-47ce-b005-2603ec6a740a.png)
 
-![persondbgenerator](https://user-images.githubusercontent.com/93444165/152201845-e1c6d4c2-01da-4ec8-bf45-08348f08b799.gif)
+![persondbgenerator](https://user-images.githubusercontent.com/93444165/155562636-1ffd1ec6-c410-4752-af3a-09af64885175.gif)
 
 - .NET 5.0
 - Aplicación de consola
