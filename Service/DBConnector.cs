@@ -35,7 +35,7 @@ namespace GeneradorBaseDatos.Service
             // Persona
             modelBuilder.Entity<Person>(entity =>
             {
-                entity.ToTable("PersonalBasicData");
+                entity.ToTable("BasicData");
 
                 entity.HasKey(k => k.PersonID);
 
@@ -88,7 +88,7 @@ namespace GeneradorBaseDatos.Service
             // Locación
             modelBuilder.Entity<Location>(entity =>
             {
-                entity.ToTable("PersonalLocation");
+                entity.ToTable("Location");
 
                 entity.HasKey(k => k.LocationID);
 
@@ -120,7 +120,7 @@ namespace GeneradorBaseDatos.Service
             // Locación - Coordenadas
             modelBuilder.Entity<Coordinates>(entity =>
             {
-                entity.ToTable("PersonalCoordinates");
+                entity.ToTable("Coordinates");
 
                 entity.HasKey(k => k.CoordinatesID);
 
@@ -132,7 +132,7 @@ namespace GeneradorBaseDatos.Service
             // Locación - Zona horaria
             modelBuilder.Entity<Timezone>(entity =>
             {
-                entity.ToTable("PersonalTimezone");
+                entity.ToTable("Timezone");
 
                 entity.HasKey(k => k.TimezoneID);
 
@@ -144,7 +144,7 @@ namespace GeneradorBaseDatos.Service
 
             modelBuilder.Entity<Login>(entity =>
             {
-                entity.ToTable("PersonalLogin");
+                entity.ToTable("Login");
 
                 entity.HasKey(k => k.LoginID);
 
@@ -165,7 +165,7 @@ namespace GeneradorBaseDatos.Service
 
             modelBuilder.Entity<Registered>(entity =>
             {
-                entity.ToTable("PersonalRegistered");
+                entity.ToTable("Registered");
 
                 entity.HasKey(k => k.RegisteredID);
 
@@ -176,7 +176,7 @@ namespace GeneradorBaseDatos.Service
 
             modelBuilder.Entity<Picture>(entity =>
             {
-                entity.ToTable("PersonalPicture");
+                entity.ToTable("Picture");
 
                 entity.HasKey(k => k.PictureID);
 
