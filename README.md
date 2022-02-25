@@ -10,7 +10,7 @@ La estructura de la misma se puede encontrar en el archivo de este repositorio u
 
 Estructura de la base de datos que se genera:
 
-![PersonDBGeneratorDiagrama](https://user-images.githubusercontent.com/93444165/153715041-43a82baa-118f-47ce-b005-2603ec6a740a.png)
+![PersonDBGeneratorDiagrama](https://user-images.githubusercontent.com/93444165/155767344-a52b785c-ca23-4cbe-a7cc-17b732ec90f6.png)
 
 - .NET 5.0
 - Aplicación de consola
