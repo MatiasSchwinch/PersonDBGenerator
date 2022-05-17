@@ -18,18 +18,21 @@ namespace PersonDBGenerator
 
             #region Seleccionar motor de base de datos.
             //  Elegir que gestor de bases de datos utilizar.
-            ConsoleEx.WriteLineColor("En que gestor de bases de datos desea guardar la información recibida?:", ConsoleColor.Green);
-            ConsoleEx.WriteLineColor("Debe tener configurada previamente la cadena de conexión en el archivo \"config.json\".", ConsoleColor.DarkGreen);
-            ConsoleEx.WriteLineColor("[1]: SQL Server \n[2]: PostgreSQL\n[3]: SQLite", ConsoleColor.DarkGreen);
-            ConsoleEx.WriteColor("Ingrese el motor elegido: ", ConsoleColor.Cyan);
+            ConsoleEx.WriteLineColor("En que gestor de bases de datos desea guardar la información recibida?:", ConsoleColor.Yellow);
+            ConsoleEx.WriteLineColor("Debe tener configurada previamente la cadena de conexión en el archivo \"config.json\".", ConsoleColor.DarkYellow);
+            ConsoleEx.WriteLineColor("[1]: SQL Server \n[2]: PostgreSQL\n[3]: SQLite", ConsoleColor.DarkYellow);
+            ConsoleEx.WriteColor("Ingrese el motor elegido: ", ConsoleColor.Green);
             var selectDatabaseEngine = ConsoleEx.ReadLineAndValidate<int>(input => !Validate.ValidateRange(input, 1, 3), "Ingrese un valor correcto: ");
             #endregion
+
+            Console.Clear();
+            Header();
 
             #region Leer la cantidad de cantidad de registros a insertar.
             //  Ingresar la cantidad de registros a generar.
             ConsoleEx.WriteLineColor("Ingrese la cantidad de registros que desea añadir a la base de datos:", ConsoleColor.Yellow);
             ConsoleEx.WriteLineColor("Máximo soportado por la API: 5000 por solicitud.\nPuede solicitar hasta 20.000 registros en 4 solicitudes por separado.", ConsoleColor.DarkYellow);
-            ConsoleEx.WriteColor("Ingrese la cantidad de registros a solicitar: ", ConsoleColor.Cyan);
+            ConsoleEx.WriteColor("Ingrese la cantidad de registros a solicitar: ", ConsoleColor.Green);
             var QuantityToAdd = ConsoleEx.ReadLineAndValidate<int>(input => !Validate.ValidateRange(input, 1, 20000), "Ingrese un valor correcto: ");
             #endregion
 
@@ -38,7 +41,7 @@ namespace PersonDBGenerator
             #endregion
 
             //  Salida del programa.
-            Console.Write("\nPresione una tecla para salir...");
+            Console.Write("\nPresione una tecla para salir . . . ");
             Console.ReadKey();
         }
 
@@ -50,6 +53,7 @@ namespace PersonDBGenerator
             ConsoleEx.WriteLineColor("Autor: Matias Schwinch\nRepositorio: https://github.com/MatiasSchwinch\nAPI utilizada: https://randomuser.me\n", ConsoleColor.Blue);
         }
 
+        // Procesa la información recibida en base a cuantos registros quieren ser generados por el usuario.
         static async Task ProcessAndSaveInformationReceived(int quantityToAdd, DatabaseEngine engine)
         {
             ConsoleEx.WriteLineInfo("Conectando con la API...");
@@ -88,6 +92,7 @@ namespace PersonDBGenerator
             }
         }
 
+        // Guarda la información en la base de datos.
         static async Task SaveInformationInDatabase(ServiceAPIModel dataReceived, DatabaseEngine engine, bool showRecords = true)
         {
             var stopwatch = new Stopwatch();
