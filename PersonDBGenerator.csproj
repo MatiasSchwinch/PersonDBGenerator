@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>PersonDBGenerator</AssemblyName>
+    <RootNamespace>PersonDBGenerator</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

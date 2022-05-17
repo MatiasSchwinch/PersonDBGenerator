@@ -1,7 +1,7 @@
 {
-  "ConnectionStrings": {
-    "SqlServerConnection": "",
-    "PostgreSqlConnection": "",
-    "SqliteConnection": "Data Source=PersonDBGenerator.db;"
-  }
+    "ConnectionStrings": {
+        "SqlServerConnection": "Server=MT2;Database=PersonDBGenerator;Trusted_Connection=True;MultipleActiveResultSets=true;",
+        "PostgreSqlConnection": "Server=127.0.0.1;Port=5432;Database=PersonDBGenerator;User Id=postgres;Password=8523;",
+        "SqliteConnection": "Data Source=PersonDBGenerator.db;"
+    }
 }

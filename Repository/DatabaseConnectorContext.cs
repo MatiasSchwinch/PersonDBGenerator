@@ -1,13 +1,13 @@
-﻿using GeneradorBaseDatos.Model;
+﻿using PersonDBGenerator.Model.DatabaseEngineOptions;
+using PersonDBGenerator.Model.ServiceAPIModel;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 
-namespace GeneradorBaseDatos.Service
+namespace PersonDBGenerator.Repository
 {
-    public class DBConnector : DbContext
+    public class DatabaseConnectorContext : DbContext
     {
-        public DbSet<Person> Persons {get; set;}
+        public DbSet<Person> Persons { get; set; }
 
         private readonly DatabaseEngine _dbEngine;
         private readonly Dictionary<int, DatabaseEngineOptions> _dbEngineOptions = new()
@@ -17,7 +17,7 @@ namespace GeneradorBaseDatos.Service
             { 3, new SQLiteProviderOptions() }
         };
 
-        public DBConnector(DatabaseEngine dbEngine)
+        public DatabaseConnectorContext(DatabaseEngine dbEngine)
         {
             _dbEngine = dbEngine;
 
@@ -98,7 +98,7 @@ namespace GeneradorBaseDatos.Service
 
                 entity.Property(p => p.City).HasMaxLength(60);
 
-                entity.Property(p =>p.State).HasMaxLength(60);
+                entity.Property(p => p.State).HasMaxLength(60);
 
                 entity.Property(p => p.Country).HasMaxLength(60);
 
@@ -187,49 +187,5 @@ namespace GeneradorBaseDatos.Service
                 entity.Property(p => p.Thumbnail).HasMaxLength(60);
             });
         }
-    }
-
-    public abstract class DatabaseEngineOptions
-    {
-        private protected readonly IConfiguration _config = new ConfigurationBuilder().AddJsonFile("config.json").Build();
-        public abstract string ConnectionStringConfigFileKey { get; set; }
-        public abstract DbContextOptionsBuilder SetDatabaseEngine(DbContextOptionsBuilder optionsBuilder);
-    }
-
-    public class SqlServerProviderOptions : DatabaseEngineOptions
-    {
-        public override string ConnectionStringConfigFileKey { get; set; } = "SqlServerConnection";
-
-        public override DbContextOptionsBuilder SetDatabaseEngine(DbContextOptionsBuilder optionsBuilder)
-        {
-            return optionsBuilder.UseSqlServer(connectionString: _config.GetConnectionString(ConnectionStringConfigFileKey));
-        }
-    }
-
-    public class SQLiteProviderOptions : DatabaseEngineOptions
-    {
-        public override string ConnectionStringConfigFileKey { get; set; } = "SqliteConnection";
-
-        public override DbContextOptionsBuilder SetDatabaseEngine(DbContextOptionsBuilder optionsBuilder)
-        {
-            return optionsBuilder.UseSqlite(connectionString: _config.GetConnectionString(ConnectionStringConfigFileKey));
-        }
-    }
-
-    public class PostgreSQLProviderOptions : DatabaseEngineOptions
-    {
-        public override string ConnectionStringConfigFileKey { get; set; } = "PostgreSqlConnection";
-
-        public override DbContextOptionsBuilder SetDatabaseEngine(DbContextOptionsBuilder optionsBuilder)
-        {
-            return optionsBuilder.UseNpgsql(connectionString: _config.GetConnectionString(ConnectionStringConfigFileKey));
-        }
-    }
-
-    public enum DatabaseEngine
-    {
-        SQLServer = 1,
-        PostgreSQL = 2,
-        SQLite = 3
     }
 }
